@@ -588,6 +588,7 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
     """Returns `model_fn` closure for TPUEstimator."""
 
     def model_fn(features, labels, mode, params):  # pylint: disable=unused-argument
+        print("MODE", mode, "TPU?", use_tpu)
         """The `model_fn` for TPUEstimator."""
 
         tf.logging.info("*** Features ***")
@@ -640,23 +641,23 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
                 loss=total_loss,
                 train_op=train_op,
                 scaffold_fn=scaffold_fn)
-        elif mode == tf.estimator.ModeKeys.EVAL:
-
-            def metric_fn(per_example_loss, label_ids, logits):
-                predictions = tf.argmax(logits, axis=-1, output_type=tf.int32)
-                accuracy = tf.metrics.accuracy(label_ids, predictions)
-                loss = tf.metrics.mean(per_example_loss)
-                return {
-                    "eval_accuracy": accuracy,
-                    "eval_loss": loss,
-                }
-
-            eval_metrics = (metric_fn, [per_example_loss, label_ids, logits])
-            output_spec = tf.contrib.tpu.TPUEstimatorSpec(
-                mode=mode,
-                loss=total_loss,
-                eval_metrics=eval_metrics,
-                scaffold_fn=scaffold_fn)
+        # elif mode == tf.estimator.ModeKeys.EVAL:
+        #
+        #     def metric_fn(per_example_loss, label_ids, logits):
+        #         predictions = tf.argmax(logits, axis=-1, output_type=tf.int32)
+        #         accuracy = tf.metrics.accuracy(label_ids, predictions)
+        #         loss = tf.metrics.mean(per_example_loss)
+        #         return {
+        #             "eval_accuracy": accuracy,
+        #             "eval_loss": loss,
+        #         }
+        #
+        #     eval_metrics = (metric_fn, [per_example_loss, label_ids, logits])
+        #     output_spec = tf.contrib.tpu.TPUEstimatorSpec(
+        #         mode=mode,
+        #         loss=total_loss,
+        #         eval_metrics=eval_metrics,
+        #         scaffold_fn=scaffold_fn)
         else:
             if use_tpu:
                 output_spec = tf.contrib.tpu.TPUEstimatorSpec(mode=mode, predictions=probabilities,
