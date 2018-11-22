@@ -588,7 +588,7 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
     """Returns `model_fn` closure for TPUEstimator."""
 
     def model_fn(features, labels, mode, params):  # pylint: disable=unused-argument
-        print("MODE", mode, "TPU?", use_tpu)
+        tf.logging.info("MODE", mode, "TPU?", use_tpu)
         """The `model_fn` for TPUEstimator."""
 
         tf.logging.info("*** Features ***")
